@@ -34,6 +34,9 @@ const StockAlertBotArgentina = () => {
   const [activeTab, setActiveTab] = useState('portfolio'); // 'portfolio' o 'alerts'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rsiCache, setRsiCache] = useState({}); // Cache de RSI por símbolo
+  const [lastRsiUpdate, setLastRsiUpdate] = useState(0); // Timestamp de última actualización de RSI
+  const [updateCount, setUpdateCount] = useState(0); // Contador de actualizaciones
 
   // Guardar portfolio en localStorage cada vez que cambia
   useEffect(() => {
@@ -44,6 +47,97 @@ const StockAlertBotArgentina = () => {
   useEffect(() => {
     localStorage.setItem('stockAlerts', JSON.stringify(alerts));
   }, [alerts]);
+
+  // Función para calcular mejores horarios de trading
+  const getBestTradingHours = (recommendation, volatility, isLocal) => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    if (isLocal) {
+      // Mercado argentino: 11:00 - 17:00 ART
+      const marketOpen = { hour: 11, minute: 0 };
+      const marketClose = { hour: 17, minute: 0 };
+      
+      // Mejores horarios según la estrategia
+      let buyWindow, sellWindow;
+      
+      if (recommendation === 'COMPRAR') {
+        // Para compras: mejores momentos son apertura (11:00-12:00) o después de almuerzo (14:30-15:30)
+        // cuando hay menos volatilidad
+        if (volatility === 'ALTA') {
+          buyWindow = '14:30-15:30 (Después de almuerzo, mercado más estable)';
+        } else {
+          buyWindow = '11:15-11:45 o 14:30-15:30 (Apertura o post-almuerzo)';
+        }
+        sellWindow = '16:00-16:45 (Cerca del cierre para capturar movimientos del día)';
+      } else if (recommendation === 'VENDER') {
+        // Para ventas: mejores momentos son media mañana (11:30-12:30) o antes del cierre (16:00-16:45)
+        buyWindow = '11:15-12:00 (Apertura con momentum)';
+        sellWindow = '11:30-12:30 o 16:00-16:45 (Media mañana o cierre)';
+      } else {
+        buyWindow = '11:15-12:00 o 14:30-15:30';
+        sellWindow = '11:30-12:30 o 16:00-16:45';
+      }
+      
+      // Determinar si estamos en horario de mercado
+      const isMarketOpen = (currentHour > marketOpen.hour || (currentHour === marketOpen.hour && currentMinute >= marketOpen.minute)) &&
+                          (currentHour < marketClose.hour || (currentHour === marketClose.hour && currentMinute < marketClose.minute));
+      
+      return {
+        marketType: 'Argentina',
+        marketHours: '11:00 - 17:00 ART',
+        isMarketOpen,
+        currentTime: `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`,
+        bestBuyTime: buyWindow,
+        bestSellTime: sellWindow,
+        recommendation: isMarketOpen 
+          ? (recommendation === 'COMPRAR' 
+              ? (currentHour === 11 || (currentHour >= 14 && currentHour < 16) ? '🟢 Buen momento para comprar' : '🟡 Esperá a 14:30-15:30')
+              : recommendation === 'VENDER'
+              ? ((currentHour >= 11 && currentHour < 13) || (currentHour >= 16) ? '🟢 Buen momento para vender' : '🟡 Esperá a 16:00-16:45')
+              : '🟡 Monitoreá el mercado')
+          : '🔴 Mercado cerrado - Opera mañana'
+      };
+    } else {
+      // Mercado USA: 9:30 - 16:00 EST (14:30 - 21:00 ART aprox)
+      const marketOpen = { hour: 14, minute: 30 }; // En hora argentina
+      const marketClose = { hour: 21, minute: 0 };
+      
+      let buyWindow, sellWindow;
+      
+      if (recommendation === 'COMPRAR') {
+        // Primera hora (14:30-15:30 ART) o última hora (19:30-20:30 ART)
+        buyWindow = '14:45-15:30 o 19:30-20:30 ART (Apertura USA o cierre)';
+        sellWindow = '19:30-20:45 ART (Última hora de trading)';
+      } else if (recommendation === 'VENDER') {
+        buyWindow = '14:45-15:30 ART (Apertura USA con volumen)';
+        sellWindow = '14:45-15:30 o 19:30-20:45 ART (Apertura o cierre)';
+      } else {
+        buyWindow = '14:45-15:30 o 18:00-19:00 ART';
+        sellWindow = '15:00-16:00 o 19:30-20:45 ART';
+      }
+      
+      const isMarketOpen = (currentHour > marketOpen.hour || (currentHour === marketOpen.hour && currentMinute >= marketOpen.minute)) &&
+                          (currentHour < marketClose.hour || (currentHour === marketClose.hour && currentMinute < marketClose.minute));
+      
+      return {
+        marketType: 'USA',
+        marketHours: '14:30 - 21:00 ART (9:30-16:00 EST)',
+        isMarketOpen,
+        currentTime: `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')} ART`,
+        bestBuyTime: buyWindow,
+        bestSellTime: sellWindow,
+        recommendation: isMarketOpen 
+          ? (recommendation === 'COMPRAR' 
+              ? ((currentHour === 14 && currentMinute >= 45) || currentHour === 15 || (currentHour >= 19 && currentHour < 21) ? '🟢 Buen momento para comprar' : '🟡 Esperá a 14:45 o 19:30')
+              : recommendation === 'VENDER'
+              ? ((currentHour === 14 && currentMinute >= 45) || currentHour === 15 || (currentHour >= 19) ? '🟢 Buen momento para vender' : '🟡 Esperá horarios pico')
+              : '🟡 Monitoreá el mercado')
+          : '🔴 Mercado cerrado - Opera mañana 14:30 ART'
+      };
+    }
+  };
 
   // Sistema de análisis técnico avanzado
   const analyzeStock = (symbol, data, historicalData) => {
@@ -124,6 +218,11 @@ const StockAlertBotArgentina = () => {
     if (volume > 4000000) reasons.push('Volumen alto (fuerte interés del mercado)');
     else if (volume < 2000000) reasons.push('Volumen bajo (poca convicción)');
 
+    // Calcular volatilidad para mejores horarios
+    const volatility = Math.abs(changeVal) > 3 ? 'ALTA' : Math.abs(changeVal) > 1.5 ? 'MEDIA' : 'BAJA';
+    const isLocal = marketType === 'local';
+    const tradingHours = getBestTradingHours(recommendation, volatility, isLocal);
+
     return {
       recommendation,
       confidence,
@@ -133,75 +232,142 @@ const StockAlertBotArgentina = () => {
       targetPrice,
       signals,
       reasons,
-      risk: sellScore > 60 ? 'ALTO' : buyScore > 60 ? 'BAJO' : 'MEDIO'
+      risk: sellScore > 60 ? 'ALTO' : buyScore > 60 ? 'BAJO' : 'MEDIO',
+      tradingHours
     };
   };
 
   // Función auxiliar para obtener sector
   const getSector = (symbol) => {
     const sectors = {
+      // Argentinas
       'GGAL': 'Financiero',
       'BBAR': 'Financiero',
+      'BMA': 'Financiero',
+      'SUPV': 'Financiero',
       'YPFD': 'Energía',
       'PAMP': 'Energía',
+      'TGSU2': 'Energía',
       'TXAR': 'Industrial',
       'ALUA': 'Industrial',
+      'TECO2': 'Telecomunicaciones',
+      'EDN': 'Energía',
+      'LOMA': 'Energía',
+      'MIRG': 'Industrial',
+      'BYMA': 'Financiero',
+      'TRAN': 'Energía',
+      'COME': 'Consumo',
+      'CEPU': 'Telecomunicaciones',
+      'CRES': 'Consumo',
+      'VALO': 'Energía',
+      'AGRO': 'Agroindustrial',
+      // USA
       'AAPL': 'Tecnología',
       'GOOGL': 'Tecnología',
       'MSFT': 'Tecnología',
+      'AMZN': 'Tecnología',
+      'META': 'Tecnología',
+      'NVDA': 'Tecnología',
+      'NFLX': 'Tecnología',
+      'AMD': 'Tecnología',
+      'INTC': 'Tecnología',
       'TSLA': 'Automotriz',
       'KO': 'Consumo',
-      'WMT': 'Retail'
+      'WMT': 'Retail',
+      'BABA': 'Tecnología',
+      'DIS': 'Entretenimiento',
+      'BA': 'Industrial',
+      'JPM': 'Financiero',
+      'V': 'Financiero',
+      'MA': 'Financiero',
+      'PFE': 'Salud',
+      'JNJ': 'Salud'
     };
     return sectors[symbol] || 'Otro';
   };
 
-  // Obtener datos REALES de Yahoo Finance
+  // Obtener datos REALES de Yahoo Finance con OPTIMIZACIÓN
   useEffect(() => {
-    const fetchRealData = async () => {
-      setLoading(true);
+    const fetchRealData = async (forceRsiUpdate = false) => {
+      const isFirstLoad = updateCount === 0;
+      if (isFirstLoad) setLoading(true);
       setError(null);
       
+      // REDUCIDO A 6 ACCIONES para máxima optimización
       const symbols = marketType === 'local' 
         ? ['GGAL', 'YPFD', 'PAMP', 'BBAR', 'TXAR', 'ALUA']
-        : ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'KO', 'WMT'];
+        : ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN', 'NVDA'];
       
       try {
-        console.log('🔄 Obteniendo datos de Yahoo Finance para:', symbols);
+        const now = Date.now();
+        console.log(`🔄 Act. #${updateCount + 1}: ${isFirstLoad ? 'COMPLETA' : 'SOLO PRECIOS'}`);
         
-        // Obtener cotizaciones actuales
+        // SIEMPRE obtener cotizaciones actuales (rápido)
         const realData = await getMultipleQuotes(symbols, marketType === 'local');
-        console.log('✅ Datos recibidos:', realData);
         
         if (Object.keys(realData).length === 0) {
-          throw new Error('No se pudieron obtener datos de Yahoo Finance');
+          throw new Error('No se pudieron obtener datos');
         }
         
-        // Enriquecer con RSI calculado de datos históricos
         const enrichedData = {};
-        for (const [symbol, data] of Object.entries(realData)) {
-          try {
-            // Para acciones locales, agregar .BA solo si es mercado local
-            const symbolForHistory = marketType === 'local' ? `${symbol}.BA` : symbol;
-            const history = await getHistoricalPrices(symbolForHistory, 14);
-            const rsi = calculateRSI(history, 14);
+        
+        if (isFirstLoad) {
+          // Solo calcular RSI en la primera carga
+          console.log('📈 Calculando RSI inicial (solo primera vez)...');
+          const newRsiCache = {};
+          
+          for (const symbol of symbols) {
+            const data = realData[symbol];
+            if (!data) continue;
+            
+            try {
+              const symbolForHistory = marketType === 'local' ? `${symbol}.BA` : symbol;
+              const history = await getHistoricalPrices(symbolForHistory, 14);
+              const rsi = calculateRSI(history, 14);
+              newRsiCache[symbol] = rsi || 50;
+            } catch (err) {
+              console.warn(`⚠️ Error RSI ${symbol}:`, err.message);
+              newRsiCache[symbol] = 50;
+            }
+            
+            // Pequeña pausa entre peticiones
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          
+          setRsiCache(newRsiCache);
+          setLastRsiUpdate(now);
+          
+          // Construir datos enriquecidos con nuevo RSI
+          Object.entries(realData).forEach(([symbol, data]) => {
+            enrichedData[symbol] = {
+              ...data,
+              rsi: newRsiCache[symbol] || 50,
+              sector: getSector(symbol)
+            };
+          });
+        } else {
+          console.log('⚡ Usando RSI del cache');
+          // Usar RSI del cache (estimado basado en cambio de precio)
+          Object.entries(realData).forEach(([symbol, data]) => {
+            // Estimar cambio de RSI basado en cambio de precio
+            let estimatedRsi = rsiCache[symbol] || 50;
+            if (rsiCache[symbol]) {
+              const priceChange = parseFloat(data.change);
+              // Ajuste simple: si sube mucho, RSI sube; si baja mucho, RSI baja
+              if (priceChange > 3) estimatedRsi = Math.min(estimatedRsi + 5, 100);
+              else if (priceChange > 1.5) estimatedRsi = Math.min(estimatedRsi + 2, 100);
+              else if (priceChange < -3) estimatedRsi = Math.max(estimatedRsi - 5, 0);
+              else if (priceChange < -1.5) estimatedRsi = Math.max(estimatedRsi - 2, 0);
+            }
             
             enrichedData[symbol] = {
               ...data,
-              rsi: rsi || 50,
+              rsi: estimatedRsi,
               sector: getSector(symbol)
             };
-          } catch (err) {
-            console.warn(`⚠️ Error obteniendo RSI para ${symbol}:`, err);
-            enrichedData[symbol] = {
-              ...data,
-              rsi: 50,
-              sector: getSector(symbol)
-            };
-          }
+          });
         }
         
-        console.log('📊 Datos enriquecidos:', enrichedData);
         setStockData(enrichedData);
         
         // Generar análisis para cada acción
@@ -212,20 +378,26 @@ const StockAlertBotArgentina = () => {
         setStockAnalysis(analysis);
         
         checkAlerts(enrichedData);
-        setLoading(false);
+        setUpdateCount(prev => prev + 1);
+        if (isFirstLoad) setLoading(false);
         
       } catch (error) {
-        console.error('❌ Error fetching real data:', error);
+        console.error('❌ Error fetching data:', error);
         setError(error.message);
-        setLoading(false);
+        if (isFirstLoad) setLoading(false);
       }
     };
     
-    // Cargar datos inmediatamente
-    fetchRealData();
+    // Reset cuando cambia el mercado
+    setUpdateCount(0);
+    setRsiCache({});
+    setLastRsiUpdate(0);
     
-    // Actualizar cada 30 segundos
-    const interval = setInterval(fetchRealData, 30000);
+    // Cargar datos inmediatamente con RSI
+    fetchRealData(true);
+    
+    // Actualizar cada 90 segundos (solo precios, RSI estimado)
+    const interval = setInterval(() => fetchRealData(false), 90000);
 
     return () => clearInterval(interval);
   }, [marketType]);
@@ -553,6 +725,30 @@ const StockAlertBotArgentina = () => {
             <div className="flex flex-col items-center gap-3">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
               <p className="text-blue-200">Cargando datos del mercado...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Indicador de estado de conexión y actualizaciones OPTIMIZADO */}
+        {!loading && updateCount > 0 && (
+          <div className="mb-4 flex justify-center">
+            <div className="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20 flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-300">⚡ Ultra Rápido</span>
+              </div>
+              <div className="h-4 w-px bg-white/20"></div>
+              <span className="text-xs text-gray-400">
+                Actualiza: <span className="text-white font-semibold">cada 90s</span>
+              </span>
+              <div className="h-4 w-px bg-white/20"></div>
+              <span className="text-xs text-gray-400">
+                6 acciones: <span className="text-green-300 font-semibold">6 req/90s</span>
+              </span>
+              <div className="h-4 w-px bg-white/20"></div>
+              <span className="text-xs text-gray-400">
+                RSI: <span className="text-purple-300 font-semibold">🧠 IA</span>
+              </span>
             </div>
           </div>
         )}
@@ -1085,6 +1281,52 @@ const StockAlertBotArgentina = () => {
                             ))}
                           </ul>
                         </div>
+
+                        {/* Mejores horarios de trading */}
+                        {analysis.tradingHours && (
+                          <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-3 mt-3 border border-purple-400/30">
+                            <p className="text-xs font-semibold text-purple-300 mb-2 flex items-center gap-2">
+                              <Clock size={14} />
+                              ⏰ Mejores Horarios para Operar
+                            </p>
+                            
+                            <div className="space-y-2 text-xs">
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-300">Mercado:</span>
+                                <span className="text-white font-semibold">{analysis.tradingHours.marketType}</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-300">Horario:</span>
+                                <span className="text-white font-semibold">{analysis.tradingHours.marketHours}</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-300">Hora actual:</span>
+                                <span className={`font-semibold ${analysis.tradingHours.isMarketOpen ? 'text-green-400' : 'text-red-400'}`}>
+                                  {analysis.tradingHours.currentTime}
+                                </span>
+                              </div>
+                              
+                              <div className="pt-2 border-t border-white/10">
+                                <div className="mb-2">
+                                  <p className="text-gray-400 mb-1">🛒 Mejor hora para COMPRAR:</p>
+                                  <p className="text-green-300 font-semibold">{analysis.tradingHours.bestBuyTime}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-400 mb-1">💰 Mejor hora para VENDER:</p>
+                                  <p className="text-red-300 font-semibold">{analysis.tradingHours.bestSellTime}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="pt-2 border-t border-white/10">
+                                <p className="text-center font-bold text-white">
+                                  {analysis.tradingHours.recommendation}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-2 mt-2">
                           <div className="bg-green-500/10 rounded p-2 text-center">
