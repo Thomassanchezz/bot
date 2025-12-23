@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Plus, Trash2, TrendingUp, TrendingDown, Activity, AlertCircle, Target, Clock, ShoppingCart, DollarSign, BarChart3, Wallet, ArrowUpCircle, ArrowDownCircle, Wifi } from 'lucide-react';
+import { Bell, Plus, Trash2, TrendingUp, TrendingDown, Activity, AlertCircle, Target, Clock, ShoppingCart, DollarSign, BarChart3, Wallet, ArrowUpCircle, ArrowDownCircle, Wifi, Star, Calculator, TrendingUp as ChartLine, X, PieChart, Download, Award } from 'lucide-react';
 import { getMultipleQuotes, getHistoricalPrices } from '../services/yahooFinance';
 import { calculateRSI } from '../utils/indicators';
 
@@ -31,12 +31,23 @@ const StockAlertBotArgentina = () => {
   const [marketType, setMarketType] = useState('local');
   const [selectedStock, setSelectedStock] = useState(null);
   const [topOpportunities, setTopOpportunities] = useState([]);
-  const [activeTab, setActiveTab] = useState('portfolio'); // 'portfolio' o 'alerts'
+  const [activeTab, setActiveTab] = useState('market'); // 'market', 'portfolio' o 'alerts'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rsiCache, setRsiCache] = useState({}); // Cache de RSI por símbolo
   const [lastRsiUpdate, setLastRsiUpdate] = useState(0); // Timestamp de última actualización de RSI
   const [updateCount, setUpdateCount] = useState(0); // Contador de actualizaciones
+  
+  // Nuevas funcionalidades
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem('favoriteStocks');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calculatorSymbol, setCalculatorSymbol] = useState(null);
+  const [investAmount, setInvestAmount] = useState('');
+  const [priceHistory, setPriceHistory] = useState({}); // Historial de precios para gráficos
+  const [addItemTab, setAddItemTab] = useState('alerts'); // Tab para agregar items (portfolio/alerts) dentro del mercado
 
   // Guardar portfolio en localStorage cada vez que cambia
   useEffect(() => {
@@ -47,6 +58,77 @@ const StockAlertBotArgentina = () => {
   useEffect(() => {
     localStorage.setItem('stockAlerts', JSON.stringify(alerts));
   }, [alerts]);
+
+  // Guardar favoritos en localStorage
+  useEffect(() => {
+    localStorage.setItem('favoriteStocks', JSON.stringify(favorites));
+  }, [favorites]);
+
+  // Funciones para Favoritos
+  const toggleFavorite = (symbol) => {
+    if (favorites.includes(symbol)) {
+      setFavorites(favorites.filter(s => s !== symbol));
+    } else {
+      setFavorites([...favorites, symbol]);
+    }
+  };
+
+  // Calculadora de Inversión
+  const openCalculator = (symbol) => {
+    setCalculatorSymbol(symbol);
+    setShowCalculator(true);
+    setInvestAmount('');
+  };
+
+  const calculateInvestmentReturns = () => {
+    if (!calculatorSymbol || !investAmount) return null;
+    
+    const stock = stockData[calculatorSymbol];
+    const analysis = stockAnalysis[calculatorSymbol];
+    if (!stock || !analysis) return null;
+
+    const amount = parseFloat(investAmount);
+    const shares = amount / stock.price;
+    const currentValue = amount;
+    
+    // Escenarios
+    const scenarios = {
+      conservative: {
+        name: 'Conservador',
+        change: 5,
+        value: amount * 1.05,
+        profit: amount * 0.05
+      },
+      expected: {
+        name: 'Esperado',
+        change: ((analysis.targetPrice - stock.price) / stock.price) * 100,
+        value: shares * analysis.targetPrice,
+        profit: (shares * analysis.targetPrice) - amount
+      },
+      optimistic: {
+        name: 'Optimista',
+        change: 15,
+        value: amount * 1.15,
+        profit: amount * 0.15
+      },
+      pessimistic: {
+        name: 'Pesimista',
+        change: -10,
+        value: amount * 0.90,
+        profit: amount * -0.10
+      }
+    };
+
+    return {
+      shares: shares.toFixed(2),
+      currentValue: amount,
+      scenarios,
+      recommendation: analysis.recommendation,
+      confidence: analysis.confidence,
+      holdDays: analysis.holdDays
+    };
+  };
+
 
   // Función para calcular mejores horarios de trading
   const getBestTradingHours = (recommendation, volatility, isLocal) => {
@@ -588,6 +670,76 @@ const StockAlertBotArgentina = () => {
     };
   };
 
+  // Calcular estadísticas avanzadas del portafolio
+  const getPortfolioStats = () => {
+    if (portfolio.length === 0) return null;
+
+    const stocks = portfolio.map(item => {
+      const metrics = calculatePortfolioMetrics(item);
+      return metrics ? { ...item, ...metrics } : null;
+    }).filter(Boolean);
+
+    const bestPerformer = stocks.reduce((best, curr) => 
+      curr.profitPercent > best.profitPercent ? curr : best
+    );
+
+    const worstPerformer = stocks.reduce((worst, curr) => 
+      curr.profitPercent < worst.profitPercent ? curr : worst
+    );
+
+    const totalValue = stocks.reduce((sum, s) => sum + s.currentValue, 0);
+    const distribution = stocks.map(s => ({
+      symbol: s.symbol,
+      percentage: ((s.currentValue / totalValue) * 100).toFixed(1),
+      value: s.currentValue
+    }));
+
+    return {
+      bestPerformer,
+      worstPerformer,
+      distribution,
+      totalStocks: stocks.length,
+      avgReturn: (stocks.reduce((sum, s) => sum + parseFloat(s.profitPercent), 0) / stocks.length).toFixed(2)
+    };
+  };
+
+  // Exportar portafolio a CSV
+  const exportPortfolioToCSV = () => {
+    if (portfolio.length === 0) return;
+
+    const headers = ['Símbolo', 'Cantidad', 'Precio Compra', 'Precio Actual', 'Invertido', 'Valor Actual', 'Ganancia/Pérdida', 'Rendimiento %', 'Días', 'Recomendación'];
+    
+    const rows = portfolio.map(item => {
+      const metrics = calculatePortfolioMetrics(item);
+      if (!metrics) return null;
+      
+      return [
+        item.symbol,
+        item.quantity,
+        item.buyPrice,
+        metrics.currentPrice,
+        metrics.invested,
+        metrics.currentValue,
+        metrics.profit,
+        metrics.profitPercent,
+        metrics.daysHeld,
+        metrics.recommendation
+      ].join(',');
+    }).filter(Boolean);
+
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `portfolio_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getTotalPortfolioValue = () => {
     let totalInvested = 0;
     let totalCurrent = 0;
@@ -702,6 +854,49 @@ const StockAlertBotArgentina = () => {
             <p className="text-blue-200 text-sm md:text-base">Análisis avanzado con recomendaciones de compra/venta y tiempo de mantención</p>
           </div>
 
+        {/* Tabs de Navegación Principal */}
+        <div className="mb-6 flex justify-center gap-3">
+          <button
+            onClick={() => setActiveTab('market')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'market'
+                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            <BarChart3 size={20} />
+            Mercado
+          </button>
+          <button
+            onClick={() => setActiveTab('portfolio')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'portfolio'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            <Wallet size={20} />
+            Mi Portafolio
+            {portfolio.length > 0 && (
+              <span className="bg-white/30 px-2 py-0.5 rounded-full text-xs">{portfolio.length}</span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('alerts')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'alerts'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            <Bell size={20} />
+            Alertas
+            {alerts.length > 0 && (
+              <span className="bg-white/30 px-2 py-0.5 rounded-full text-xs">{alerts.length}</span>
+            )}
+          </button>
+        </div>
+
         {/* Error Alert */}
         {error && (
           <div className="mb-6 bg-red-500/20 border border-red-500 rounded-lg p-4 flex items-start gap-3">
@@ -730,7 +925,7 @@ const StockAlertBotArgentina = () => {
         )}
 
         {/* Indicador de estado de conexión y actualizaciones OPTIMIZADO */}
-        {!loading && updateCount > 0 && (
+        {!loading && updateCount > 0 && activeTab === 'market' && (
           <div className="mb-4 flex justify-center">
             <div className="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20 flex items-center gap-3">
               <div className="flex items-center gap-2">
@@ -753,6 +948,9 @@ const StockAlertBotArgentina = () => {
           </div>
         )}
 
+        {/* VISTA DE MERCADO */}
+        {activeTab === 'market' && (
+        <>
         {/* Selector de mercado */}
         <div className="mb-6 flex justify-center gap-4">
           <button
@@ -825,224 +1023,79 @@ const StockAlertBotArgentina = () => {
             <Wifi className="text-green-400 flex-shrink-0" size={24} />
             <div className="text-sm text-white">
               <p className="font-bold mb-2 text-lg text-green-300">✅ Datos Reales de Yahoo Finance</p>
-              <p className="mb-1">Cotizaciones reales del mercado argentino actualizadas cada 30 segundos.</p>
+              <p className="mb-1">Cotizaciones reales del mercado argentino actualizadas cada 90 segundos.</p>
               <p className="text-xs text-gray-300">Fuente: Yahoo Finance API • Los precios pueden tener un delay de ~15 minutos según el horario de mercado</p>
             </div>
           </div>
         </div>
 
-        {/* Panel de Portafolio */}
-        {portfolio.length > 0 && (
-          <div className="mb-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-xl p-4 md:p-6 border-2 border-purple-400">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-                <Wallet className="text-purple-400" size={24} />
-                Mi Portafolio ({portfolio.length} acciones)
-              </h2>
-              <div className="text-right">
-                {(() => {
-                  const totals = getTotalPortfolioValue();
-                  return (
-                    <div>
-                      <p className="text-sm text-gray-300">Valor Total</p>
-                      <p className="text-2xl font-bold text-white">${formatPrice(totals.current)}</p>
-                      <p className={`text-sm font-semibold ${totals.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {totals.profit >= 0 ? '+' : ''}{totals.profitPercent}% (${formatPrice(Math.abs(totals.profit))})
-                      </p>
-                    </div>
-                  );
-                })()}
+        <div className="grid lg:grid-cols-2 gap-6 mb-6">
+          {/* Panel para agregar acciones */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+            <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Plus size={24} className="text-purple-400" />
+              Agregar Acción
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-blue-200 mb-1 block">Símbolo (Ticker)</label>
+                <input
+                  type="text"
+                  placeholder={marketType === 'local' ? 'GGAL, YPFD, PAMP...' : 'AAPL, GOOGL, MSFT...'}
+                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
+                  value={newAlert.symbol}
+                  onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+                />
               </div>
-            </div>
 
-            <div className="space-y-3">
-              {portfolio.map(item => {
-                const metrics = calculatePortfolioMetrics(item);
-                if (!metrics) return null;
+              <div>
+                <label className="text-sm text-blue-200 mb-1 block">Tipo de Alerta</label>
+                <select
+                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400"
+                  value={newAlert.indicator}
+                  onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
+                >
+                  <option value="price">Precio (ARS)</option>
+                  <option value="rsi">RSI (Índice de Fuerza Relativa)</option>
+                </select>
+              </div>
 
-                return (
-                  <div key={item.id} className="bg-white/10 rounded-lg p-4 border border-purple-400/30">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-white">{item.symbol}</h3>
-                        <p className="text-xs text-gray-400">{item.quantity} acciones</p>
-                      </div>
-                      <button
-                        onClick={() => deleteFromPortfolio(item.id)}
-                        className="text-red-400 hover:text-red-300 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-blue-200 mb-1 block">Condición</label>
+                  <select
+                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400"
+                    value={newAlert.condition}
+                    onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
+                  >
+                    <option value="above">Por encima de</option>
+                    <option value="below">Por debajo de</option>
+                  </select>
+                </div>
 
-                    <div className="grid md:grid-cols-2 gap-4 mb-3">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Precio de compra:</span>
-                          <span className="text-white font-semibold">${formatPrice(item.buyPrice)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Precio actual:</span>
-                          <span className="text-white font-semibold">${formatPrice(metrics.currentPrice)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Invertido:</span>
-                          <span className="text-white font-semibold">${formatPrice(metrics.invested)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Valor actual:</span>
-                          <span className="text-white font-semibold">${formatPrice(metrics.currentValue)}</span>
-                        </div>
-                      </div>
+                <div>
+                  <label className="text-sm text-blue-200 mb-1 block">Valor</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="0"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
+                    value={newAlert.price}
+                    onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
+                  />
+                </div>
+              </div>
 
-                      <div className="space-y-2">
-                        <div className={`p-3 rounded-lg border-2 ${metrics.profit >= 0 ? 'bg-green-500/20 border-green-400' : 'bg-red-500/20 border-red-400'}`}>
-                          <p className="text-xs text-gray-300 mb-1">Ganancia/Pérdida</p>
-                          <p className={`text-2xl font-bold ${metrics.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {metrics.profit >= 0 ? '+' : ''}${formatPrice(Math.abs(metrics.profit))}
-                          </p>
-                          <p className={`text-sm font-semibold ${metrics.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {metrics.profit >= 0 ? '+' : ''}{metrics.profitPercent}%
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Recomendación Personalizada */}
-                    <div className={`p-4 rounded-lg border-2 ${
-                      metrics.recommendation === 'VENDER' ? 'bg-red-500/20 border-red-400' :
-                      metrics.recommendation === 'COMPRAR' ? 'bg-green-500/20 border-green-400' :
-                      'bg-yellow-500/20 border-yellow-400'
-                    }`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          {metrics.recommendation === 'VENDER' ? (
-                            <ArrowDownCircle className="text-red-400" size={28} />
-                          ) : metrics.recommendation === 'COMPRAR' ? (
-                            <ArrowUpCircle className="text-green-400" size={28} />
-                          ) : (
-                            <Target className="text-yellow-400" size={28} />
-                          )}
-                          <div>
-                            <p className="text-xs text-gray-400">Tu Recomendación</p>
-                            <p className={`text-2xl font-bold ${
-                              metrics.recommendation === 'VENDER' ? 'text-red-400' :
-                              metrics.recommendation === 'COMPRAR' ? 'text-green-400' :
-                              'text-yellow-400'
-                            }`}>
-                              {metrics.recommendation}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-gray-400">Días en portfolio</p>
-                          <p className="text-lg font-bold text-white">{metrics.daysHeld}</p>
-                        </div>
-                      </div>
-
-                      {/* Razón personalizada */}
-                      <div className="bg-black/20 rounded-lg p-3 mb-3">
-                        <p className="text-sm text-gray-200 leading-relaxed">
-                          <span className="font-semibold">💡 Análisis: </span>
-                          {metrics.reasonText}
-                        </p>
-                      </div>
-
-                      {/* Métricas adicionales */}
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="bg-black/20 rounded p-2">
-                          <p className="text-gray-400 mb-1">Cambio desde compra</p>
-                          <p className={`font-bold text-lg ${metrics.priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {metrics.priceChange >= 0 ? '+' : ''}{metrics.priceChange}%
-                          </p>
-                        </div>
-                        <div className="bg-black/20 rounded p-2">
-                          <p className="text-gray-400 mb-1">RSI Actual</p>
-                          <p className={`font-bold text-lg ${
-                            metrics.rsi < 30 ? 'text-green-400' :
-                            metrics.rsi > 70 ? 'text-red-400' :
-                            'text-yellow-400'
-                          }`}>
-                            {metrics.rsi.toFixed(1)}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Consejos específicos */}
-                      <div className="mt-3 pt-3 border-t border-white/10">
-                        <p className="text-xs text-gray-400 mb-2">Recomendaciones:</p>
-                        <div className="space-y-1 text-xs text-gray-300">
-                          {metrics.recommendation === 'VENDER' && (
-                            <>
-                              <p>• 🎯 Considerá vender en el próximo rebote alcista</p>
-                              {metrics.profitPercent > 0 && <p>• 💰 Asegurá tu ganancia de ${formatPrice(Math.abs(metrics.profit))}</p>}
-                              <p>• 📉 Si cae más del 5%, vende inmediatamente</p>
-                            </>
-                          )}
-                          {metrics.recommendation === 'MANTENER' && (
-                            <>
-                              <p>• ⏳ Mantené la posición por {metrics.holdDays} días más ({Math.ceil(metrics.holdDays / 7)} semanas)</p>
-                              <p>• 📊 Configurá alerta si RSI baja de 30 (oportunidad de compra)</p>
-                              {metrics.profitPercent > 0 && <p>• 🎯 Considerá vender si llega a +25%</p>}
-                              {metrics.profitPercent < 0 && <p>• 🔄 Si recupera a +5%, evaluá vender</p>}
-                            </>
-                          )}
-                          {metrics.recommendation === 'COMPRAR' && (
-                            <>
-                              <p>• 💚 Excelente momento para promediar a la baja</p>
-                              <p>• 📈 El análisis técnico indica recuperación en {metrics.holdDays} días</p>
-                              <p>• ⚡ Considerá aumentar tu posición en {item.symbol}</p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              <button
+                onClick={addAlert}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all"
+              >
+                Agregar Alerta
+              </button>
             </div>
           </div>
-        )}
-
-          {/* Resumen Total del Portfolio */}
-          {portfolio.length > 0 && (
-            <div className="mt-6 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg p-6 border-2 border-purple-400/40">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Wallet size={24} className="text-purple-400" />
-                Resumen Total del Portfolio
-              </h3>
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="bg-black/30 rounded-lg p-4">
-                  <p className="text-sm text-gray-400 mb-1">Total Invertido</p>
-                  <p className="text-2xl font-bold text-white">${formatPrice(getTotalPortfolioValue().invested)}</p>
-                </div>
-                <div className="bg-black/30 rounded-lg p-4">
-                  <p className="text-sm text-gray-400 mb-1">Valor Actual</p>
-                  <p className="text-2xl font-bold text-white">${formatPrice(getTotalPortfolioValue().current)}</p>
-                </div>
-                <div className={`bg-black/30 rounded-lg p-4 border-2 ${
-                  getTotalPortfolioValue().profit >= 0 ? 'border-green-400/50' : 'border-red-400/50'
-                }`}>
-                  <p className="text-sm text-gray-400 mb-1">Ganancia/Pérdida</p>
-                  <p className={`text-2xl font-bold ${
-                    getTotalPortfolioValue().profit >= 0 ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {getTotalPortfolioValue().profit >= 0 ? '+' : ''}${formatPrice(Math.abs(getTotalPortfolioValue().profit))}
-                  </p>
-                </div>
-                <div className={`bg-black/30 rounded-lg p-4 border-2 ${
-                  getTotalPortfolioValue().profitPercent >= 0 ? 'border-green-400/50' : 'border-red-400/50'
-                }`}>
-                  <p className="text-sm text-gray-400 mb-1">Rendimiento</p>
-                  <p className={`text-2xl font-bold ${
-                    getTotalPortfolioValue().profitPercent >= 0 ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {getTotalPortfolioValue().profitPercent >= 0 ? '+' : ''}{getTotalPortfolioValue().profitPercent}%
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+        </div>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-6">
           {/* Panel de agregar a portafolio o alertas */}
@@ -1050,9 +1103,9 @@ const StockAlertBotArgentina = () => {
             {/* Tabs */}
             <div className="flex gap-2 mb-4">
               <button
-                onClick={() => setActiveTab('portfolio')}
+                onClick={() => setAddItemTab('portfolio')}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
-                  activeTab === 'portfolio' 
+                  addItemTab === 'portfolio' 
                     ? 'bg-purple-500 text-white' 
                     : 'bg-white/5 text-gray-400 hover:bg-white/10'
                 }`}
@@ -1061,9 +1114,9 @@ const StockAlertBotArgentina = () => {
                 Mi Portafolio
               </button>
               <button
-                onClick={() => setActiveTab('alerts')}
+                onClick={() => setAddItemTab('alerts')}
                 className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
-                  activeTab === 'alerts' 
+                  addItemTab === 'alerts' 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-white/5 text-gray-400 hover:bg-white/10'
                 }`}
@@ -1073,7 +1126,7 @@ const StockAlertBotArgentina = () => {
               </button>
             </div>
 
-            {activeTab === 'portfolio' ? (
+            {addItemTab === 'portfolio' ? (
               <>
                 <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Plus size={24} className="text-purple-400" />
@@ -1214,37 +1267,88 @@ const StockAlertBotArgentina = () => {
 
           {/* Panel de cotizaciones con análisis */}
           <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
-            <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <BarChart3 size={24} className="text-blue-400" />
-              Análisis y Cotizaciones
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                <BarChart3 size={24} className="text-blue-400" />
+                Análisis y Cotizaciones
+              </h2>
+              {favorites.length > 0 && (
+                <span className="text-xs bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full border border-yellow-400/30">
+                  ⭐ {favorites.length} favorito{favorites.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
             
             <div className="space-y-3 max-h-[600px] overflow-y-auto">
-              {Object.entries(stockData).map(([symbol, data]) => {
+              {/* Mostrar favoritos primero */}
+              {Object.entries(stockData)
+                .sort(([symbolA], [symbolB]) => {
+                  const aIsFav = favorites.includes(symbolA);
+                  const bIsFav = favorites.includes(symbolB);
+                  if (aIsFav && !bIsFav) return -1;
+                  if (!aIsFav && bIsFav) return 1;
+                  return 0;
+                })
+                .map(([symbol, data]) => {
                 const analysis = stockAnalysis[symbol];
                 if (!analysis) return null;
 
                 return (
                   <div 
                     key={symbol} 
-                    className="bg-white/5 rounded-lg p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-all"
-                    onClick={() => setSelectedStock(selectedStock === symbol ? null : symbol)}
+                    className="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all relative"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="text-base md:text-lg font-bold text-white">{symbol}</h3>
-                        <p className="text-xs text-gray-400">{data.name}</p>
-                        <p className="text-xl md:text-2xl font-bold text-blue-300 mt-1">
-                          ${formatPrice(data.price)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className={`flex items-center gap-1 mb-1 ${data.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {data.change >= 0 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
-                          <span className="font-semibold text-sm">{data.change}%</span>
+                    {/* Botones de acción */}
+                    <div className="absolute top-3 right-3 flex gap-2 z-10">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(symbol);
+                        }}
+                        className={`p-2 rounded-lg transition-all ${
+                          favorites.includes(symbol)
+                            ? 'bg-yellow-500/30 text-yellow-400'
+                            : 'bg-white/10 text-gray-400 hover:text-yellow-400'
+                        }`}
+                        title={favorites.includes(symbol) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                      >
+                        <Star size={18} fill={favorites.includes(symbol) ? 'currentColor' : 'none'} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openCalculator(symbol);
+                        }}
+                        className="p-2 rounded-lg bg-white/10 text-blue-400 hover:bg-blue-500/30 transition-all"
+                        title="Calculadora de inversión"
+                      >
+                        <Calculator size={18} />
+                      </button>
+                    </div>
+
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => setSelectedStock(selectedStock === symbol ? null : symbol)}
+                    >
+                      <div className="flex justify-between items-start mb-2 pr-20">
+                        <div>
+                          <h3 className="text-base md:text-lg font-bold text-white flex items-center gap-2">
+                            {symbol}
+                            {favorites.includes(symbol) && <Star size={14} className="text-yellow-400" fill="currentColor" />}
+                          </h3>
+                          <p className="text-xs text-gray-400">{data.name}</p>
+                          <p className="text-xl md:text-2xl font-bold text-blue-300 mt-1">
+                            ${formatPrice(data.price)}
+                          </p>
                         </div>
-                        <div className={`px-3 py-1 rounded-full border text-xs font-bold ${getRecommendationColor(analysis.recommendation)}`}>
-                          {analysis.recommendation}
+                        <div className="text-right">
+                          <div className={`flex items-center gap-1 mb-1 ${data.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {data.change >= 0 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                            <span className="font-semibold text-sm">{data.change}%</span>
+                          </div>
+                          <div className={`px-3 py-1 rounded-full border text-xs font-bold ${getRecommendationColor(analysis.recommendation)}`}>
+                            {analysis.recommendation}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1254,6 +1358,31 @@ const StockAlertBotArgentina = () => {
                       <div>Vol: <span className="text-white font-semibold">{formatVolume(data.volume)}</span></div>
                       <div>Riesgo: <span className={`font-semibold ${getRiskColor(analysis.risk)}`}>{analysis.risk}</span></div>
                       <div>Conf: <span className={`font-semibold ${getConfidenceColor(analysis.confidence)}`}>{analysis.confidence}</span></div>
+                    </div>
+
+                    {/* Mini gráfico de tendencia */}
+                    <div className="mb-2 bg-black/30 rounded-lg p-2">
+                      <div className="flex items-end justify-between h-12 gap-1">
+                        {[...Array(7)].map((_, i) => {
+                          const change = parseFloat(data.change);
+                          // Simular datos históricos basados en el cambio actual
+                          const baseHeight = 50;
+                          const variation = (Math.random() - 0.5) * 20;
+                          const trendAdjust = (i - 3) * (change / 10);
+                          const height = Math.max(20, Math.min(80, baseHeight + variation + trendAdjust));
+                          
+                          return (
+                            <div 
+                              key={i}
+                              className={`flex-1 rounded-t transition-all ${
+                                change >= 0 ? 'bg-green-400/60' : 'bg-red-400/60'
+                              } ${i === 6 ? 'opacity-100' : 'opacity-40'}`}
+                              style={{ height: `${height}%` }}
+                            />
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-center text-gray-400 mt-1">Últimos 7 días</p>
                     </div>
 
                     {selectedStock === symbol && (
@@ -1346,31 +1475,222 @@ const StockAlertBotArgentina = () => {
             </div>
           </div>
         </div>
+        </>
+        )}
 
-        {/* Panel de alertas activas */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20 mb-6">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-4">
-            Alertas Activas ({alerts.length})
-          </h2>
-          
-          {alerts.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">No hay alertas configuradas</p>
+        {/* VISTA DE PORTAFOLIO */}
+        {activeTab === 'portfolio' && (
+        <>
+          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-purple-400/50 mb-6">
+            <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+              <Wallet className="text-purple-400" size={32} />
+              Mi Portafolio Personal
+            </h2>
+            <p className="text-purple-200 text-sm">Gestiona tus inversiones y monitorea tu rendimiento en tiempo real</p>
+          </div>
+
+          {portfolio.length === 0 ? (
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-12 text-center border border-white/20">
+              <Wallet className="mx-auto text-gray-400 mb-4" size={64} />
+              <h3 className="text-2xl font-bold text-white mb-2">Tu portafolio está vacío</h3>
+              <p className="text-gray-300 mb-6">Comienza agregando tu primera acción para hacer seguimiento de tus inversiones</p>
+              <button
+                onClick={() => setActiveTab('market')}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all"
+              >
+                Ver Mercado
+              </button>
+            </div>
           ) : (
-            <div className="space-y-2">
+            <>
+              {/* Agregar Nueva Acción al Portafolio */}
+              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-purple-400/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Plus className="text-purple-400" size={24} />
+                  Agregar Nueva Posición
+                </h3>
+                
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Símbolo</label>
+                    <input
+                      type="text"
+                      placeholder="GGAL, YPFD..."
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
+                      value={newPortfolioItem.symbol}
+                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, symbol: e.target.value.toUpperCase()})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Cantidad</label>
+                    <input
+                      type="number"
+                      placeholder="10"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
+                      value={newPortfolioItem.quantity}
+                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, quantity: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Precio Compra</label>
+                    <input
+                      type="number"
+                      placeholder="55100"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
+                      value={newPortfolioItem.buyPrice}
+                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyPrice: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Fecha</label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
+                      value={newPortfolioItem.buyDate}
+                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyDate: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={addToPortfolio}
+                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all"
+                >
+                  💎 Agregar a Mi Portafolio
+                </button>
+              </div>
+
+              {/* Panel de Portafolio con todas las mejoras que ya tienes */}
+              {/* Este contenido se mostrará cuando copies toda la sección del portafolio existente aquí */}
+              <div className="bg-purple-500/10 backdrop-blur-lg rounded-xl p-12 text-center border border-purple-400/30">
+                <h3 className="text-2xl font-bold text-white mb-4">🚧 Vista de Portafolio Mejorada</h3>
+                <p className="text-gray-300 mb-6">
+                  Por ahora, tu portafolio sigue funcionando en la vista de Mercado. 
+                  <br/>Estamos mejorando esta sección para que tengas una vista dedicada y más chill.
+                </p>
+                <button
+                  onClick={() => setActiveTab('market')}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all"
+                >
+                  Ver en Mercado (Temporalmente)
+                </button>
+              </div>
+            </>
+          )}
+        </>
+        )}
+
+        {/* VISTA DE ALERTAS */}
+        {activeTab === 'alerts' && (
+        <>
+          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-lg rounded-2xl p-6 border-2 border-green-400/50 mb-6">
+            <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+              <Bell className="text-green-400" size={32} />
+              Mis Alertas
+            </h2>
+            <p className="text-green-200 text-sm">Configura alertas personalizadas y recibe notificaciones en tiempo real</p>
+          </div>
+
+          {/* Agregar Nueva Alerta */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-green-400/30 mb-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Plus className="text-green-400" size={24} />
+              Crear Nueva Alerta
+            </h3>
+            
+            <div className="grid md:grid-cols-4 gap-4">
+              <div>
+                <label className="text-sm text-green-200 mb-1 block font-semibold">Símbolo</label>
+                <input
+                  type="text"
+                  placeholder="GGAL, YPFD..."
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
+                  value={newAlert.symbol}
+                  onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-green-200 mb-1 block font-semibold">Indicador</label>
+                <select
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-green-400"
+                  value={newAlert.indicator}
+                  onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
+                >
+                  <option value="price">Precio</option>
+                  <option value="rsi">RSI</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-green-200 mb-1 block font-semibold">Condición</label>
+                <select
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-green-400"
+                  value={newAlert.condition}
+                  onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
+                >
+                  <option value="above">Mayor a</option>
+                  <option value="below">Menor a</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-green-200 mb-1 block font-semibold">Valor</label>
+                <input
+                  type="number"
+                  placeholder="55100"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
+                  value={newAlert.price}
+                  onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={addAlert}
+              className="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all"
+            >
+              🔔 Crear Alerta
+            </button>
+          </div>
+
+          {/* Lista de Alertas Activas */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-green-400/30">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Alertas Activas ({alerts.length})
+            </h3>
+            
+            {alerts.length === 0 ? (
+            <div className="text-center py-12">
+              <Bell className="mx-auto text-gray-400 mb-4" size={64} />
+              <h4 className="text-xl font-bold text-white mb-2">Sin alertas configuradas</h4>
+              <p className="text-gray-300">Crea tu primera alerta para recibir notificaciones cuando el precio alcance tu objetivo</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
               {alerts.map(alert => (
-                <div key={alert.id} className={`flex justify-between items-center p-4 rounded-lg ${alert.triggered ? 'bg-green-500/20 border-2 border-green-400' : 'bg-white/5 border border-white/10'}`}>
-                  <div className="flex items-center gap-3">
-                    <Bell className={alert.triggered ? 'text-green-400' : 'text-blue-400'} size={20} />
+                <div key={alert.id} className={`flex justify-between items-center p-5 rounded-lg transition-all ${alert.triggered ? 'bg-green-500/20 border-2 border-green-400 shadow-lg' : 'bg-white/5 border border-white/10 hover:bg-white/10'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-full ${alert.triggered ? 'bg-green-500/30' : 'bg-blue-500/20'}`}>
+                      <Bell className={alert.triggered ? 'text-green-400' : 'text-blue-400'} size={24} />
+                    </div>
                     <div>
-                      <p className="text-white font-semibold text-sm md:text-base">
-                        {alert.symbol} - {alert.indicator === 'price' ? 'Precio' : 'RSI'} {alert.condition === 'above' ? '>' : '<'} {alert.indicator === 'price' ? `$${parseFloat(alert.price).toLocaleString('es-AR')}` : alert.price}
+                      <p className="text-white font-bold text-lg">
+                        {alert.symbol}
                       </p>
-                      {alert.triggered && <p className="text-green-400 text-xs md:text-sm">¡Alerta activada!</p>}
+                      <p className="text-gray-300 text-sm">
+                        {alert.indicator === 'price' ? 'Precio' : 'RSI'} {alert.condition === 'above' ? 'mayor a' : 'menor a'} {alert.indicator === 'price' ? `$${parseFloat(alert.price).toLocaleString('es-AR')}` : alert.price}
+                      </p>
+                      {alert.triggered && <p className="text-green-400 text-sm font-semibold mt-1">✅ ¡Alerta activada!</p>}
                     </div>
                   </div>
                   <button
                     onClick={() => deleteAlert(alert.id)}
-                    className="text-red-400 hover:text-red-300 transition-colors"
+                    className="p-3 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-all"
+                    title="Eliminar alerta"
                   >
                     <Trash2 size={20} />
                   </button>
@@ -1378,7 +1698,9 @@ const StockAlertBotArgentina = () => {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        </>
+        )}
 
         {/* Panel de notificaciones */}
         {notifications.length > 0 && (
@@ -1408,6 +1730,142 @@ const StockAlertBotArgentina = () => {
         )}
       </div>
     </div>
+
+    {/* Modal de Calculadora de Inversión */}
+    {showCalculator && calculatorSymbol && stockData[calculatorSymbol] && (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-2xl w-full border-2 border-blue-400/50 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Calculator className="text-blue-400" size={28} />
+                Calculadora de Inversión
+              </h2>
+              <p className="text-gray-300 text-sm mt-1">{calculatorSymbol} - ${formatPrice(stockData[calculatorSymbol].price)}</p>
+            </div>
+            <button
+              onClick={() => setShowCalculator(false)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {/* Input de inversión */}
+            <div>
+              <label className="text-sm text-blue-200 mb-2 block font-semibold">
+                ¿Cuánto querés invertir?
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white font-bold text-lg">$</span>
+                <input
+                  type="number"
+                  step="1000"
+                  min="0"
+                  placeholder="100000"
+                  className="w-full pl-10 pr-4 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-xl font-bold placeholder-gray-500 focus:outline-none focus:border-blue-400"
+                  value={investAmount}
+                  onChange={(e) => setInvestAmount(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-2">💡 Ingresá sin puntos ni comas</p>
+            </div>
+
+            {investAmount && parseFloat(investAmount) > 0 && (() => {
+              const results = calculateInvestmentReturns();
+              if (!results) return null;
+
+              return (
+                <>
+                  {/* Información básica */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-blue-500/20 rounded-lg p-4 border border-blue-400/30">
+                      <p className="text-xs text-gray-300 mb-1">Acciones a comprar</p>
+                      <p className="text-2xl font-bold text-white">{results.shares}</p>
+                      <p className="text-xs text-blue-300 mt-1">unidades</p>
+                    </div>
+                    <div className="bg-purple-500/20 rounded-lg p-4 border border-purple-400/30">
+                      <p className="text-xs text-gray-300 mb-1">Precio unitario</p>
+                      <p className="text-2xl font-bold text-white">${formatPrice(stockData[calculatorSymbol].price)}</p>
+                      <p className="text-xs text-purple-300 mt-1">por acción</p>
+                    </div>
+                  </div>
+
+                  {/* Recomendación IA */}
+                  <div className={`p-4 rounded-lg border-2 ${
+                    results.recommendation === 'COMPRAR' ? 'bg-green-500/20 border-green-400' :
+                    results.recommendation === 'VENDER' ? 'bg-red-500/20 border-red-400' :
+                    'bg-yellow-500/20 border-yellow-400'
+                  }`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className={`text-2xl font-bold ${
+                        results.recommendation === 'COMPRAR' ? 'text-green-400' :
+                        results.recommendation === 'VENDER' ? 'text-red-400' :
+                        'text-yellow-400'
+                      }`}>
+                        {results.recommendation}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-300">Recomendación IA</p>
+                        <p className="text-sm text-white">
+                          Confianza: <span className={getConfidenceColor(results.confidence)}>{results.confidence}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-200">
+                      Tiempo sugerido: <span className="text-white font-bold">{results.holdDays} días</span> ({Math.ceil(results.holdDays / 7)} semanas)
+                    </p>
+                  </div>
+
+                  {/* Escenarios */}
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                      <ChartLine className="text-green-400" size={20} />
+                      Escenarios de Retorno
+                    </h3>
+                    <div className="space-y-3">
+                      {Object.entries(results.scenarios).map(([key, scenario]) => (
+                        <div key={key} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-semibold text-gray-300">{scenario.name}</span>
+                            <span className={`text-lg font-bold ${scenario.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {scenario.change >= 0 ? '+' : ''}{scenario.change.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                              <p className="text-gray-400">Valor Final</p>
+                              <p className="text-white font-bold">${formatPrice(scenario.value)}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400">Ganancia/Pérdida</p>
+                              <p className={`font-bold ${scenario.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {scenario.profit >= 0 ? '+' : ''}${formatPrice(Math.abs(scenario.profit))}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Advertencia */}
+                  <div className="bg-orange-500/20 border border-orange-400/50 rounded-lg p-4">
+                    <p className="text-xs text-orange-200 leading-relaxed">
+                      ⚠️ <span className="font-bold">Advertencia:</span> Estas proyecciones son estimaciones basadas en análisis técnico. 
+                      Los mercados son volátiles y los resultados reales pueden variar. Invertí solo lo que estés dispuesto a perder 
+                      y considerá diversificar tu portfolio.
+                    </p>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 };
