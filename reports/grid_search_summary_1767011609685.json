@@ -1,0 +1,69 @@
+{
+  "date": "2025-12-29T12:33:29.685Z",
+  "top": [
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 60,
+          "macd": 22,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1,
+        "atrMultiplierForTarget": 2
+      },
+      "winRate": 50,
+      "totalPnl": -290.76,
+      "avgPnl": -48.46,
+      "avgDaysHeld": 4,
+      "total": 6,
+      "wins": 3,
+      "losses": 3
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 20,
+          "macd": 12,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1,
+        "atrMultiplierForTarget": 2
+      },
+      "winRate": 50,
+      "totalPnl": -290.76,
+      "avgPnl": -48.46,
+      "avgDaysHeld": 4,
+      "total": 6,
+      "wins": 3,
+      "losses": 3
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 10,
+          "ma": 30,
+          "macd": 12,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 0.5,
+        "atrMultiplierForTarget": 2
+      },
+      "winRate": 33.3,
+      "totalPnl": -302.84,
+      "avgPnl": -50.4733,
+      "avgDaysHeld": 2.8,
+      "total": 6,
+      "wins": 2,
+      "losses": 4
+    }
+  ],
+  "totalConfigs": 10
+}

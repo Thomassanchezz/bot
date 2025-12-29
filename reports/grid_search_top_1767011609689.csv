@@ -1,0 +1,4 @@
+rsi,ma,macd,atrStop,atrTarget,winRate,totalPnl,avgPnl,avgDaysHeld,total,wins,losses
+14,60,22,1,2,50,-290.76,-48.46,4,6,3,3
+14,20,12,1,2,50,-290.76,-48.46,4,6,3,3
+10,30,12,0.5,2,33.3,-302.84,-50.4733,2.8,6,2,4

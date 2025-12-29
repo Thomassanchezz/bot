@@ -160,6 +160,29 @@ const getMAEData = async (symbol) => {
 - ❌ Invertí solo lo que estés dispuesto a perder
 - ❌ Considerá consultar a un asesor financiero profesional
 
+## 🧪 Simulador & Grid Search
+
+El proyecto incluye un **Simulador / Backtester** integrado en la UI (pestaña "Simulador") y scripts para ejecutar **grid-search** de parámetros desde la línea de comandos.
+
+Comandos útiles:
+
+```bash
+# Ejecutar grid-search con la grilla por defecto
+npm run grid:search
+
+# Ejecutar grid-search extendido (más combinaciones) y guardar resumen top 30
+npm run grid:search-extended
+
+# Ejecutar test unitarios simples
+npm test
+```
+
+Resultados:
+- Los resultados completos se guardan en `reports/grid_search_full_<timestamp>.json`.
+- Se genera un resumen con el top-N en `reports/grid_search_summary_<timestamp>.json` y un CSV en `reports/grid_search_top_<timestamp>.csv`.
+
+Desde la UI (`Simulador` → `Backtest`) podés correr backtests, exportar un reporte JSON/CSV y ver un historial local de los últimos 50 reportes guardados.
+
 ## 🔮 Mejoras Futuras
 
 - [ ] Integración con API real de brokers argentinos

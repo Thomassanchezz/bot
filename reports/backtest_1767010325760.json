@@ -1,0 +1,658 @@
+{
+  "date": "2025-12-29T12:12:05.756Z",
+  "results": [
+    {
+      "symbol": "GGAL",
+      "eval": {
+        "symbol": "GGAL",
+        "price": 8380,
+        "rsi": 65.37,
+        "score": 77,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 8831.43,
+        "stopLoss": 8210.71,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8831.43,
+              "stopLoss": 8210.71,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8210.71,
+              "daysHeld": 7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "YPFD",
+      "eval": {
+        "symbol": "YPFD",
+        "price": 54600,
+        "rsi": 53.15,
+        "score": 77,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 56507.14,
+        "stopLoss": 53884.82,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 56507.14,
+              "stopLoss": 53884.82,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 53884.82,
+              "daysHeld": 6
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "PAMP",
+      "eval": {
+        "symbol": "PAMP",
+        "price": 5375,
+        "rsi": 51.1,
+        "score": 77,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 5532.14,
+        "stopLoss": 5316.07,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRate": "100.0",
+        "results": [
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5532.14,
+              "stopLoss": 5316.07,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 5532.14,
+              "daysHeld": 7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "BBAR",
+      "eval": {
+        "symbol": "BBAR",
+        "price": 9310,
+        "rsi": 68.62,
+        "score": 75,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 9835.71,
+        "stopLoss": 9112.86,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 9835.71,
+              "stopLoss": 9112.86,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9112.86,
+              "daysHeld": 7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "TXAR",
+      "eval": {
+        "symbol": "TXAR",
+        "price": 698,
+        "rsi": 37.81,
+        "score": 70,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 787,
+        "stopLoss": 664.63,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)",
+          "Momentum negativo reciente"
+        ],
+        "signals": [
+          "MA_BULLISH",
+          "MOMENTUM_NEG"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRate": "100.0",
+        "results": [
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 787,
+              "stopLoss": 664.63,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 787,
+              "daysHeld": 8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "ALUA",
+      "eval": {
+        "symbol": "ALUA",
+        "price": 1007,
+        "rsi": 48.52,
+        "score": 76,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 1120.71,
+        "stopLoss": 964.36,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1120.71,
+              "stopLoss": 964.36,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 964.36,
+              "daysHeld": 9
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "BMA",
+      "eval": {
+        "symbol": "BMA",
+        "price": 13940,
+        "rsi": 62.37,
+        "score": 78,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 14825.71,
+        "stopLoss": 13607.86,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "BMA",
+            "signal": {
+              "symbol": "BMA",
+              "price": 13940,
+              "targetPrice": 14825.71,
+              "stopLoss": 13607.86,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 13607.86,
+              "daysHeld": 4
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "BYMA",
+      "eval": {
+        "symbol": "BYMA",
+        "price": 291.5,
+        "rsi": 49.74,
+        "score": 77,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 301.07,
+        "stopLoss": 287.91,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRate": "100.0",
+        "results": [
+          {
+            "symbol": "BYMA",
+            "signal": {
+              "symbol": "BYMA",
+              "price": 291.5,
+              "targetPrice": 301.07,
+              "stopLoss": 287.91,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 301.07,
+              "daysHeld": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "EDN",
+      "eval": {
+        "symbol": "EDN",
+        "price": 2420,
+        "rsi": 51.95,
+        "score": 76,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 2544.29,
+        "stopLoss": 2373.39,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "EDN",
+            "signal": {
+              "symbol": "EDN",
+              "price": 2420,
+              "targetPrice": 2544.29,
+              "stopLoss": 2373.39,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 2373.39,
+              "daysHeld": 8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "COME",
+      "eval": {
+        "symbol": "COME",
+        "price": 64.9000015258789,
+        "rsi": 47.08,
+        "score": 71,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 71.79,
+        "stopLoss": 62.32,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)",
+          "Momentum negativo reciente"
+        ],
+        "signals": [
+          "MA_BULLISH",
+          "MOMENTUM_NEG"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "COME",
+            "signal": {
+              "symbol": "COME",
+              "price": 64.9000015258789,
+              "targetPrice": 71.79,
+              "stopLoss": 62.32,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 62.32,
+              "daysHeld": 8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "ALUA",
+      "eval": {
+        "symbol": "ALUA",
+        "price": 1007,
+        "rsi": 48.52,
+        "score": 76,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 1120.71,
+        "stopLoss": 964.36,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1120.71,
+              "stopLoss": 964.36,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 964.36,
+              "daysHeld": 9
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "PGR",
+      "eval": {
+        "symbol": "PGR",
+        "price": 274.69,
+        "rsi": 100,
+        "score": 60,
+        "recommendation": "MANTENER",
+        "confidence": "MEDIA",
+        "targetPrice": 275.62,
+        "stopLoss": 274.34,
+        "riskReward": 0.93,
+        "reasons": [
+          "RSI en zona de sobrecompra",
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "RSI_OVERBOUGHT",
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRate": "100.0",
+        "results": [
+          {
+            "symbol": "PGR",
+            "signal": {
+              "symbol": "PGR",
+              "price": 274.69,
+              "targetPrice": 275.62,
+              "stopLoss": 274.34,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 275.62,
+              "daysHeld": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "CEPU",
+      "eval": {
+        "symbol": "CEPU",
+        "price": 2712.5,
+        "rsi": 65.54,
+        "score": 76,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 2895.07,
+        "stopLoss": 2644.04,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "CEPU",
+            "signal": {
+              "symbol": "CEPU",
+              "price": 2712.5,
+              "targetPrice": 2895.07,
+              "stopLoss": 2644.04,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 2644.04,
+              "daysHeld": 6
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "LOMA",
+      "eval": {
+        "symbol": "LOMA",
+        "price": 3980,
+        "rsi": 66.78,
+        "score": 79,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 4170,
+        "stopLoss": 3908.75,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)"
+        ],
+        "signals": [
+          "MA_BULLISH"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 0,
+        "losses": 1,
+        "winRate": "0.0",
+        "results": [
+          {
+            "symbol": "LOMA",
+            "signal": {
+              "symbol": "LOMA",
+              "price": 3980,
+              "targetPrice": 4170,
+              "stopLoss": 3908.75,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 3908.75,
+              "daysHeld": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "AGRO",
+      "eval": {
+        "symbol": "AGRO",
+        "price": 56,
+        "rsi": 43.65,
+        "score": 75,
+        "recommendation": "COMPRAR",
+        "confidence": "MEDIA",
+        "targetPrice": 60.8,
+        "stopLoss": 54.2,
+        "riskReward": 2.67,
+        "reasons": [
+          "SMA20 > SMA50 (tendencia alcista)",
+          "Momentum negativo reciente"
+        ],
+        "signals": [
+          "MA_BULLISH",
+          "MOMENTUM_NEG"
+        ]
+      },
+      "backtest": {
+        "total": 1,
+        "wins": 1,
+        "losses": 0,
+        "winRate": "100.0",
+        "results": [
+          {
+            "symbol": "AGRO",
+            "signal": {
+              "symbol": "AGRO",
+              "price": 56,
+              "targetPrice": 60.8,
+              "stopLoss": 54.2,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 60.8,
+              "daysHeld": 12
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

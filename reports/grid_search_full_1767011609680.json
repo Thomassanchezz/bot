@@ -1,0 +1,1165 @@
+{
+  "date": "2025-12-29T12:33:29.664Z",
+  "results": [
+    {
+      "config": {
+        "weights": {
+          "rsi": 16,
+          "ma": 40,
+          "macd": 8,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1,
+        "atrMultiplierForTarget": 4
+      },
+      "summary": {
+        "total": 6,
+        "wins": 1,
+        "losses": 5,
+        "neutrals": 0,
+        "winRate": 16.7,
+        "totalPnl": -771.88,
+        "avgPnl": -128.6467,
+        "avgDaysHeld": 5.2,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8861.83,
+              "stopLoss": 8251.94,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8251.94,
+              "daysHeld": 2
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 56590.41,
+              "stopLoss": 54081.58,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 54081.58,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5537.89,
+              "stopLoss": 5332.84,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 5332.84,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 9872.82,
+              "stopLoss": 9160.02,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9160.02,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 801.19,
+              "stopLoss": 668.66,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 801.19,
+              "daysHeld": 9
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1136.77,
+              "stopLoss": 970.55,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 970.55,
+              "daysHeld": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 10,
+          "ma": 30,
+          "macd": 12,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 0.5,
+        "atrMultiplierForTarget": 2
+      },
+      "summary": {
+        "total": 6,
+        "wins": 2,
+        "losses": 4,
+        "neutrals": 0,
+        "winRate": 33.3,
+        "totalPnl": -302.84,
+        "avgPnl": -50.4733,
+        "avgDaysHeld": 2.8,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8620.91,
+              "stopLoss": 8315.97,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8315.97,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 55595.21,
+              "stopLoss": 54340.79,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 54340.79,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5456.44,
+              "stopLoss": 5353.92,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 5353.92,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 9591.41,
+              "stopLoss": 9235.01,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9235.01,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 749.59,
+              "stopLoss": 683.33,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 749.59,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1071.88,
+              "stopLoss": 988.77,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 1071.88,
+              "daysHeld": 6
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 60,
+          "macd": 22,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1,
+        "atrMultiplierForTarget": 2
+      },
+      "summary": {
+        "total": 6,
+        "wins": 3,
+        "losses": 3,
+        "neutrals": 0,
+        "winRate": 50,
+        "totalPnl": -290.76,
+        "avgPnl": -48.46,
+        "avgDaysHeld": 4,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8620.91,
+              "stopLoss": 8251.94,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8251.94,
+              "daysHeld": 2
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 55595.21,
+              "stopLoss": 54081.58,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 54081.58,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5456.44,
+              "stopLoss": 5332.84,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 5332.84,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 9591.41,
+              "stopLoss": 9160.02,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 9591.41,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 749.59,
+              "stopLoss": 668.66,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 749.59,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1071.88,
+              "stopLoss": 970.55,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 1071.88,
+              "daysHeld": 6
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 10,
+          "macd": 20,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1.5,
+        "atrMultiplierForTarget": 5
+      },
+      "summary": {
+        "total": 6,
+        "wins": 2,
+        "losses": 4,
+        "neutrals": 0,
+        "winRate": 33.3,
+        "totalPnl": -916.77,
+        "avgPnl": -152.795,
+        "avgDaysHeld": 8.8,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8982.28,
+              "stopLoss": 8187.92,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8187.92,
+              "daysHeld": 2
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 57088.01,
+              "stopLoss": 53822.37,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 53822.37,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5578.61,
+              "stopLoss": 5311.76,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 5578.61,
+              "daysHeld": 17
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 10013.53,
+              "stopLoss": 9085.03,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9085.03,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 826.98,
+              "stopLoss": 653.99,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 826.98,
+              "daysHeld": 9
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1169.21,
+              "stopLoss": 952.32,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 952.32,
+              "daysHeld": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 30,
+          "macd": 18,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 2,
+        "atrMultiplierForTarget": 6
+      },
+      "summary": {
+        "total": 6,
+        "wins": 1,
+        "losses": 4,
+        "neutrals": 1,
+        "winRate": 16.7,
+        "totalPnl": -1421.49,
+        "avgPnl": -236.915,
+        "avgDaysHeld": 8.7,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 9102.74,
+              "stopLoss": 8123.89,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8123.89,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 57585.62,
+              "stopLoss": 53563.16,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 53563.16,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5619.33,
+              "stopLoss": 5290.69,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 5619.33,
+              "daysHeld": 17
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 10154.23,
+              "stopLoss": 9010.04,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9010.04,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 852.78,
+              "stopLoss": 639.31,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "neutral",
+              "exitPrice": 698,
+              "pnl": 0
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1201.65,
+              "stopLoss": 934.09,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 934.09,
+              "daysHeld": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 8,
+          "ma": 60,
+          "macd": 8,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1,
+        "atrMultiplierForTarget": 6
+      },
+      "summary": {
+        "total": 6,
+        "wins": 0,
+        "losses": 5,
+        "neutrals": 1,
+        "winRate": 0,
+        "totalPnl": -875.07,
+        "avgPnl": -145.845,
+        "avgDaysHeld": 3.7,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 9102.74,
+              "stopLoss": 8251.94,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8251.94,
+              "daysHeld": 2
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 57585.62,
+              "stopLoss": 54081.58,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 54081.58,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5619.33,
+              "stopLoss": 5332.84,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 5332.84,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 10154.23,
+              "stopLoss": 9160.02,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9160.02,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 852.78,
+              "stopLoss": 668.66,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "neutral",
+              "exitPrice": 698,
+              "pnl": 0
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1201.65,
+              "stopLoss": 970.55,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 970.55,
+              "daysHeld": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 30,
+          "macd": 8,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 0.5,
+        "atrMultiplierForTarget": 6
+      },
+      "summary": {
+        "total": 6,
+        "wins": 0,
+        "losses": 5,
+        "neutrals": 1,
+        "winRate": 0,
+        "totalPnl": -437.54,
+        "avgPnl": -72.9233,
+        "avgDaysHeld": 2.3,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 9102.74,
+              "stopLoss": 8315.97,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8315.97,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 57585.62,
+              "stopLoss": 54340.79,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 54340.79,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5619.33,
+              "stopLoss": 5353.92,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 5353.92,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 10154.23,
+              "stopLoss": 9235.01,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9235.01,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 852.78,
+              "stopLoss": 683.33,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "neutral",
+              "exitPrice": 698,
+              "pnl": 0
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1201.65,
+              "stopLoss": 988.77,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 988.77,
+              "daysHeld": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 8,
+          "ma": 20,
+          "macd": 10,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1.5,
+        "atrMultiplierForTarget": 5
+      },
+      "summary": {
+        "total": 6,
+        "wins": 2,
+        "losses": 4,
+        "neutrals": 0,
+        "winRate": 33.3,
+        "totalPnl": -916.77,
+        "avgPnl": -152.795,
+        "avgDaysHeld": 8.8,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8982.28,
+              "stopLoss": 8187.92,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8187.92,
+              "daysHeld": 2
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 57088.01,
+              "stopLoss": 53822.37,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 53822.37,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5578.61,
+              "stopLoss": 5311.76,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 5578.61,
+              "daysHeld": 17
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 10013.53,
+              "stopLoss": 9085.03,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9085.03,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 826.98,
+              "stopLoss": 653.99,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 826.98,
+              "daysHeld": 9
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1169.21,
+              "stopLoss": 952.32,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 952.32,
+              "daysHeld": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 30,
+          "macd": 10,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 2,
+        "atrMultiplierForTarget": 4
+      },
+      "summary": {
+        "total": 6,
+        "wins": 2,
+        "losses": 4,
+        "neutrals": 0,
+        "winRate": 33.3,
+        "totalPnl": -1399.74,
+        "avgPnl": -233.29,
+        "avgDaysHeld": 8.3,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8861.83,
+              "stopLoss": 8123.89,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8123.89,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 56590.41,
+              "stopLoss": 53563.16,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 53563.16,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5537.89,
+              "stopLoss": 5290.69,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 5537.89,
+              "daysHeld": 6
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 9872.82,
+              "stopLoss": 9010.04,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 9010.04,
+              "daysHeld": 8
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 801.19,
+              "stopLoss": 639.31,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 801.19,
+              "daysHeld": 9
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1136.77,
+              "stopLoss": 934.09,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 934.09,
+              "daysHeld": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "config": {
+        "weights": {
+          "rsi": 14,
+          "ma": 20,
+          "macd": 12,
+          "momentum": 15,
+          "volume": 10,
+          "volatility": 15
+        },
+        "atrMultiplierForStop": 1,
+        "atrMultiplierForTarget": 2
+      },
+      "summary": {
+        "total": 6,
+        "wins": 3,
+        "losses": 3,
+        "neutrals": 0,
+        "winRate": 50,
+        "totalPnl": -290.76,
+        "avgPnl": -48.46,
+        "avgDaysHeld": 4,
+        "results": [
+          {
+            "symbol": "GGAL",
+            "signal": {
+              "symbol": "GGAL",
+              "price": 8380,
+              "targetPrice": 8620.91,
+              "stopLoss": 8251.94,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 8251.94,
+              "daysHeld": 2
+            }
+          },
+          {
+            "symbol": "YPFD",
+            "signal": {
+              "symbol": "YPFD",
+              "price": 54600,
+              "targetPrice": 55595.21,
+              "stopLoss": 54081.58,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 54081.58,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "PAMP",
+            "signal": {
+              "symbol": "PAMP",
+              "price": 5375,
+              "targetPrice": 5456.44,
+              "stopLoss": 5332.84,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "loss",
+              "exitPrice": 5332.84,
+              "daysHeld": 1
+            }
+          },
+          {
+            "symbol": "BBAR",
+            "signal": {
+              "symbol": "BBAR",
+              "price": 9310,
+              "targetPrice": 9591.41,
+              "stopLoss": 9160.02,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 9591.41,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "TXAR",
+            "signal": {
+              "symbol": "TXAR",
+              "price": 698,
+              "targetPrice": 749.59,
+              "stopLoss": 668.66,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 749.59,
+              "daysHeld": 7
+            }
+          },
+          {
+            "symbol": "ALUA",
+            "signal": {
+              "symbol": "ALUA",
+              "price": 1007,
+              "targetPrice": 1071.88,
+              "stopLoss": 970.55,
+              "holdDays": 30
+            },
+            "result": {
+              "outcome": "win",
+              "exitPrice": 1071.88,
+              "daysHeld": 6
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

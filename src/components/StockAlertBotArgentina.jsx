@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Bell, Plus, Trash2, TrendingUp, TrendingDown, Activity, AlertCircle, Target, Clock, ShoppingCart, DollarSign, BarChart3, Wallet, ArrowUpCircle, ArrowDownCircle, Wifi, Star, Calculator, TrendingUp as ChartLine, X, PieChart, Download, Award } from 'lucide-react';
 import { getMultipleQuotes, getHistoricalPrices } from '../services/yahooFinance';
 import { calculateRSI } from '../utils/indicators';
+import Card from './ui/Card';
+import Button from './ui/Button';
+import FormField from './ui/FormField';
+import OpportunitiesPanel from './OpportunitiesPanel';
+import BacktestPanel from './BacktestPanel';
 
 const StockAlertBotArgentina = () => {
   // Cargar datos guardados de localStorage
@@ -895,6 +900,17 @@ const StockAlertBotArgentina = () => {
               <span className="bg-white/30 px-2 py-0.5 rounded-full text-xs">{alerts.length}</span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('simulator')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'simulator'
+                ? 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-lg'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            }`}
+          >
+            <Calculator size={20} />
+            Simulador
+          </button>
         </div>
 
         {/* Error Alert */}
@@ -953,26 +969,8 @@ const StockAlertBotArgentina = () => {
         <>
         {/* Selector de mercado */}
         <div className="mb-6 flex justify-center gap-4">
-          <button
-            onClick={() => setMarketType('local')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              marketType === 'local' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-white/10 text-blue-200 hover:bg-white/20'
-            }`}
-          >
-            Acciones Argentinas
-          </button>
-          <button
-            onClick={() => setMarketType('cedears')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              marketType === 'cedears' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-white/10 text-blue-200 hover:bg-white/20'
-            }`}
-          >
-            CEDEARs
-          </button>
+          <Button onClick={() => setMarketType('local')} variant={marketType === 'local' ? 'primary' : 'ghost'} className="px-6 py-3">Acciones Argentinas</Button>
+          <Button onClick={() => setMarketType('cedears')} variant={marketType === 'cedears' ? 'primary' : 'ghost'} className="px-6 py-3">CEDEARs</Button>
         </div>
 
         {/* Panel de mejores oportunidades */}
@@ -993,16 +991,8 @@ const StockAlertBotArgentina = () => {
                 if (!stock) return null;
                 
                 return (
-                  <div key={symbol} className="bg-white/10 rounded-lg p-4 border border-green-400/30 hover:bg-white/15 transition-all">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="text-lg font-bold text-white">{symbol}</h3>
-                        <p className="text-xs text-gray-400">{stock.name}</p>
-                      </div>
-                      <div className="bg-green-500/30 px-3 py-1 rounded-full">
-                        <p className="text-green-400 font-bold text-sm">{analysis.buyScore}%</p>
-                      </div>
-                    </div>
+                  <Card key={symbol} className="hover:scale-[1.01] transition-transform" header={symbol} badge={`${analysis.buyScore}%`}>
+                    <p className="text-xs text-gray-400 mb-2">{stock.name}</p>
                     <p className="text-2xl font-bold text-green-300 mb-2">${formatPrice(stock.price)}</p>
                     <div className="space-y-1 text-xs text-gray-300">
                       <p>• Recomendación: <span className={`font-semibold ${getRecommendationColor(analysis.recommendation)}`}>{analysis.recommendation}</span></p>
@@ -1010,12 +1000,20 @@ const StockAlertBotArgentina = () => {
                       <p>• Mantener: <span className="text-white font-semibold">{analysis.holdDays} días</span></p>
                       <p>• Objetivo: <span className="text-green-400 font-semibold">${formatPrice(analysis.targetPrice)}</span></p>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
           )}
         </div>
+
+        <OpportunitiesPanel symbols={Object.keys(stockData)} stockData={stockData} onCreateAlert={(ev) => {
+          const newAlertObj = { symbol: ev.symbol, condition: 'above', price: ev.targetPrice, indicator: 'price' };
+          setAlerts(prev=>[...prev, newAlertObj]);
+          try { window.alert(`Alerta creada: ${ev.symbol} > ${ev.targetPrice}`);} catch(e){}
+        }} />
+
+        <BacktestPanel />
 
         {/* Info box - Datos Reales */}
         <div className="mb-6 bg-green-500/20 border-2 border-green-400 rounded-xl p-4">
@@ -1038,61 +1036,48 @@ const StockAlertBotArgentina = () => {
             </h2>
             
             <div className="space-y-4">
-              <div>
-                <label className="text-sm text-blue-200 mb-1 block">Símbolo (Ticker)</label>
-                <input
-                  type="text"
-                  placeholder={marketType === 'local' ? 'GGAL, YPFD, PAMP...' : 'AAPL, GOOGL, MSFT...'}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
-                  value={newAlert.symbol}
-                  onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+              <FormField
+                label="Símbolo (Ticker)"
+                placeholder={marketType === 'local' ? 'GGAL, YPFD, PAMP...' : 'AAPL, GOOGL, MSFT...'}
+                value={newAlert.symbol}
+                onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+              />
+
+              <FormField
+                label="Tipo de Alerta"
+                type="select"
+                value={newAlert.indicator}
+                onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
+                options={[{ value: 'price', label: 'Precio (ARS)' }, { value: 'rsi', label: 'RSI (Índice de Fuerza Relativa)' }]}
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  label="Condición"
+                  type="select"
+                  value={newAlert.condition}
+                  onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
+                  options={[{ value: 'above', label: 'Por encima de' }, { value: 'below', label: 'Por debajo de' }]}
+                />
+
+                <FormField
+                  label="Valor"
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  value={newAlert.price}
+                  onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
                 />
               </div>
 
-              <div>
-                <label className="text-sm text-blue-200 mb-1 block">Tipo de Alerta</label>
-                <select
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400"
-                  value={newAlert.indicator}
-                  onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
-                >
-                  <option value="price">Precio (ARS)</option>
-                  <option value="rsi">RSI (Índice de Fuerza Relativa)</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-sm text-blue-200 mb-1 block">Condición</label>
-                  <select
-                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400"
-                    value={newAlert.condition}
-                    onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
-                  >
-                    <option value="above">Por encima de</option>
-                    <option value="below">Por debajo de</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm text-blue-200 mb-1 block">Valor</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="0"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
-                    value={newAlert.price}
-                    onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <button
+              <Button
                 onClick={addAlert}
-                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all"
+                variant="primary"
+                disabled={!newAlert.symbol || !newAlert.price}
+                className="w-full py-3"
               >
                 Agregar Alerta
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1135,66 +1120,52 @@ const StockAlertBotArgentina = () => {
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm text-blue-200 mb-1 block">Símbolo (Ticker)</label>
-                    <input
-                      type="text"
-                      placeholder={marketType === 'local' ? 'GGAL, YPF, PAMP...' : 'AAPL, GOOGL, MSFT...'}
-                      className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-                      value={newPortfolioItem.symbol}
-                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, symbol: e.target.value.toUpperCase()})}
-                    />
+                    <FormField
+                    label="Símbolo (Ticker)"
+                    placeholder={marketType === 'local' ? 'GGAL, YPF, PAMP...' : 'AAPL, GOOGL, MSFT...'}
+                    value={newPortfolioItem.symbol}
+                    onChange={(e) => setNewPortfolioItem({...newPortfolioItem, symbol: e.target.value.toUpperCase()})}
+                  />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-sm text-blue-200 mb-1 block">Cantidad</label>
-                      <input
-                        type="number"
-                        step="1"
-                        min="1"
-                        placeholder="10"
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-                        value={newPortfolioItem.quantity}
-                        onChange={(e) => setNewPortfolioItem({...newPortfolioItem, quantity: e.target.value})}
-                      />
-                    </div>
+                    <FormField
+                      label="Cantidad"
+                      type="number"
+                      step="1"
+                      min="1"
+                      placeholder="10"
+                      value={newPortfolioItem.quantity}
+                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, quantity: e.target.value})}
+                    />
 
-                    <div>
-                      <label className="text-sm text-blue-200 mb-1 block">
-                        Precio de Compra
-                        <span className="text-xs text-gray-400 ml-2">(sin puntos ni comas)</span>
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="55100 (no 55.100)"
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-                        value={newPortfolioItem.buyPrice}
-                        onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyPrice: e.target.value})}
-                      />
-                      <p className="text-xs text-gray-400 mt-1">
-                        💡 Ejemplo: Si compraste a $55.100, ingresá: <span className="text-green-400 font-mono">55100</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm text-blue-200 mb-1 block">Fecha de Compra</label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
-                      value={newPortfolioItem.buyDate}
-                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyDate: e.target.value})}
+                    <FormField
+                      label={"Precio de Compra"}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="55100 (no 55.100)"
+                      value={newPortfolioItem.buyPrice}
+                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyPrice: e.target.value})}
+                      help={<span>💡 Ejemplo: Si compraste a $55.100, ingresá: <span className="text-green-400 font-mono">55100</span></span>}
                     />
                   </div>
 
-                  <button
+                  <FormField
+                    label="Fecha de Compra"
+                    type="date"
+                    value={newPortfolioItem.buyDate}
+                    onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyDate: e.target.value})}
+                  />
+
+                  <Button
                     onClick={addToPortfolio}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all"
+                    variant="primary"
+                    disabled={!newPortfolioItem.symbol || !newPortfolioItem.quantity || !newPortfolioItem.buyPrice}
+                    className="w-full py-3"
                   >
                     Agregar a Mi Portafolio
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (
@@ -1205,61 +1176,48 @@ const StockAlertBotArgentina = () => {
                 </h2>
                 
                 <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-blue-200 mb-1 block">Símbolo (Ticker)</label>
-                    <input
-                      type="text"
-                      placeholder={marketType === 'local' ? 'GGAL, YPF, PAMP...' : 'AAPL, GOOGL, MSFT...'}
-                      className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
-                      value={newAlert.symbol}
-                      onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+                  <FormField
+                    label="Símbolo (Ticker)"
+                    placeholder={marketType === 'local' ? 'GGAL, YPF, PAMP...' : 'AAPL, GOOGL, MSFT...'}
+                    value={newAlert.symbol}
+                    onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+                  />
+
+                  <FormField
+                    label="Indicador"
+                    type="select"
+                    value={newAlert.indicator}
+                    onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
+                    options={[{ value: 'price', label: 'Precio (ARS)' }, { value: 'rsi', label: 'RSI (Índice de Fuerza Relativa)' }]}
+                  />
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormField
+                      label="Condición"
+                      type="select"
+                      value={newAlert.condition}
+                      onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
+                      options={[{ value: 'above', label: 'Por encima de' }, { value: 'below', label: 'Por debajo de' }]}
+                    />
+
+                    <FormField
+                      label="Valor"
+                      type="number"
+                      step="0.01"
+                      placeholder="0"
+                      value={newAlert.price}
+                      onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
                     />
                   </div>
 
-                  <div>
-                    <label className="text-sm text-blue-200 mb-1 block">Indicador</label>
-                    <select
-                      className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400"
-                      value={newAlert.indicator}
-                      onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
-                    >
-                      <option value="price">Precio (ARS)</option>
-                      <option value="rsi">RSI (Índice de Fuerza Relativa)</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-sm text-blue-200 mb-1 block">Condición</label>
-                      <select
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400"
-                        value={newAlert.condition}
-                        onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
-                      >
-                        <option value="above">Por encima de</option>
-                        <option value="below">Por debajo de</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-sm text-blue-200 mb-1 block">Valor</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="0"
-                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
-                        value={newAlert.price}
-                        onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
-                      />
-                    </div>
-                  </div>
-
-                  <button
+                  <Button
                     onClick={addAlert}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all"
+                    variant="primary"
+                    disabled={!newAlert.symbol || !newAlert.price}
+                    className="w-full py-3"
                   >
                     Agregar Alerta
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
@@ -1311,6 +1269,8 @@ const StockAlertBotArgentina = () => {
                             : 'bg-white/10 text-gray-400 hover:text-yellow-400'
                         }`}
                         title={favorites.includes(symbol) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                        aria-label={favorites.includes(symbol) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                        aria-pressed={favorites.includes(symbol)}
                       >
                         <Star size={18} fill={favorites.includes(symbol) ? 'currentColor' : 'none'} />
                       </button>
@@ -1321,14 +1281,24 @@ const StockAlertBotArgentina = () => {
                         }}
                         className="p-2 rounded-lg bg-white/10 text-blue-400 hover:bg-blue-500/30 transition-all"
                         title="Calculadora de inversión"
+                        aria-label="Abrir calculadora de inversión"
                       >
                         <Calculator size={18} />
                       </button>
                     </div>
 
                     <div 
-                      className="cursor-pointer"
+                      className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={selectedStock === symbol}
                       onClick={() => setSelectedStock(selectedStock === symbol ? null : symbol)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedStock(selectedStock === symbol ? null : symbol);
+                        }
+                      }}
                     >
                       <div className="flex justify-between items-start mb-2 pr-20">
                         <div>
@@ -1504,63 +1474,52 @@ const StockAlertBotArgentina = () => {
           ) : (
             <>
               {/* Agregar Nueva Acción al Portafolio */}
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-purple-400/30 mb-6">
+              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-purple-400/30 mb-6" role="region" aria-label="Agregar nueva posición">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Plus className="text-purple-400" size={24} />
                   Agregar Nueva Posición
                 </h3>
                 
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Símbolo</label>
-                    <input
-                      type="text"
-                      placeholder="GGAL, YPFD..."
-                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-                      value={newPortfolioItem.symbol}
-                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, symbol: e.target.value.toUpperCase()})}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <FormField
+                    label="Símbolo"
+                    placeholder="GGAL, YPFD..."
+                    value={newPortfolioItem.symbol}
+                    onChange={(e) => setNewPortfolioItem({...newPortfolioItem, symbol: e.target.value.toUpperCase()})}
+                  />
 
-                  <div>
-                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Cantidad</label>
-                    <input
-                      type="number"
-                      placeholder="10"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-                      value={newPortfolioItem.quantity}
-                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, quantity: e.target.value})}
-                    />
-                  </div>
+                  <FormField
+                    label="Cantidad"
+                    type="number"
+                    placeholder="10"
+                    value={newPortfolioItem.quantity}
+                    onChange={(e) => setNewPortfolioItem({...newPortfolioItem, quantity: e.target.value})}
+                  />
 
-                  <div>
-                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Precio Compra</label>
-                    <input
-                      type="number"
-                      placeholder="55100"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400"
-                      value={newPortfolioItem.buyPrice}
-                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyPrice: e.target.value})}
-                    />
-                  </div>
+                  <FormField
+                    label="Precio Compra"
+                    type="number"
+                    placeholder="55100"
+                    value={newPortfolioItem.buyPrice}
+                    onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyPrice: e.target.value})}
+                  />
 
-                  <div>
-                    <label className="text-sm text-purple-200 mb-1 block font-semibold">Fecha</label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-400"
-                      value={newPortfolioItem.buyDate}
-                      onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyDate: e.target.value})}
-                    />
-                  </div>
+                  <FormField
+                    label="Fecha"
+                    type="date"
+                    value={newPortfolioItem.buyDate}
+                    onChange={(e) => setNewPortfolioItem({...newPortfolioItem, buyDate: e.target.value})}
+                  />
                 </div>
 
-                <button
+                <Button
                   onClick={addToPortfolio}
-                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all"
+                  variant="primary"
+                  disabled={!newPortfolioItem.symbol || !newPortfolioItem.quantity || !newPortfolioItem.buyPrice}
+                  className="w-full mt-4 py-3"
                 >
                   💎 Agregar a Mi Portafolio
-                </button>
+                </Button>
               </div>
 
               {/* Panel de Portafolio con todas las mejoras que ya tienes */}
@@ -1571,16 +1530,37 @@ const StockAlertBotArgentina = () => {
                   Por ahora, tu portafolio sigue funcionando en la vista de Mercado. 
                   <br/>Estamos mejorando esta sección para que tengas una vista dedicada y más chill.
                 </p>
-                <button
-                  onClick={() => setActiveTab('market')}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all"
-                >
-                  Ver en Mercado (Temporalmente)
-                </button>
+                <Button onClick={() => setActiveTab('market')} variant="ghost" className="px-8 py-3">Ver en Mercado (Temporalmente)</Button>
               </div>
             </>
           )}
         </>
+        )}
+
+        {/* VISTA DEL SIMULADOR / BACKTEST */}
+        {activeTab === 'simulator' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="md:col-span-2">
+              <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/5">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Simulador & Backtester</h2>
+                    <p className="text-sm text-gray-300">Corre backtests, explora resultados y ajusta parámetros en tiempo real.</p>
+                  </div>
+                </div>
+
+                <BacktestPanel />
+              </div>
+            </div>
+
+            <div className="md:col-span-1">
+              <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 border border-white/5">
+                <h3 className="text-lg font-bold text-white mb-3">Oportunidades Destacadas</h3>
+                <p className="text-sm text-gray-300 mb-4">Top señales sugeridas por el motor de oportunidades.</p>
+                <OpportunitiesPanel />
+              </div>
+            </div>
+          </div>
         )}
 
         {/* VISTA DE ALERTAS */}
@@ -1595,66 +1575,53 @@ const StockAlertBotArgentina = () => {
           </div>
 
           {/* Agregar Nueva Alerta */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-green-400/30 mb-6">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-green-400/30 mb-6" role="region" aria-live="polite" aria-label="Crear nueva alerta">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <Plus className="text-green-400" size={24} />
               Crear Nueva Alerta
             </h3>
             
-            <div className="grid md:grid-cols-4 gap-4">
-              <div>
-                <label className="text-sm text-green-200 mb-1 block font-semibold">Símbolo</label>
-                <input
-                  type="text"
-                  placeholder="GGAL, YPFD..."
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
-                  value={newAlert.symbol}
-                  onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <FormField
+                label="Símbolo"
+                placeholder="GGAL, YPFD..."
+                value={newAlert.symbol}
+                onChange={(e) => setNewAlert({...newAlert, symbol: e.target.value.toUpperCase()})}
+              />
 
-              <div>
-                <label className="text-sm text-green-200 mb-1 block font-semibold">Indicador</label>
-                <select
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-green-400"
-                  value={newAlert.indicator}
-                  onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
-                >
-                  <option value="price">Precio</option>
-                  <option value="rsi">RSI</option>
-                </select>
-              </div>
+              <FormField
+                label="Indicador"
+                type="select"
+                value={newAlert.indicator}
+                onChange={(e) => setNewAlert({...newAlert, indicator: e.target.value})}
+                options={[{value:'price', label:'Precio'}, {value:'rsi', label:'RSI'}]}
+              />
 
-              <div>
-                <label className="text-sm text-green-200 mb-1 block font-semibold">Condición</label>
-                <select
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:border-green-400"
-                  value={newAlert.condition}
-                  onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
-                >
-                  <option value="above">Mayor a</option>
-                  <option value="below">Menor a</option>
-                </select>
-              </div>
+              <FormField
+                label="Condición"
+                type="select"
+                value={newAlert.condition}
+                onChange={(e) => setNewAlert({...newAlert, condition: e.target.value})}
+                options={[{value:'above', label:'Mayor a'}, {value:'below', label:'Menor a'}]}
+              />
 
-              <div>
-                <label className="text-sm text-green-200 mb-1 block font-semibold">Valor</label>
-                <input
-                  type="number"
-                  placeholder="55100"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
-                  value={newAlert.price}
-                  onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
-                />
-              </div>
+              <FormField
+                label="Valor"
+                type="number"
+                placeholder="55100"
+                value={newAlert.price}
+                onChange={(e) => setNewAlert({...newAlert, price: e.target.value})}
+              />
             </div>
 
-            <button
+            <Button
               onClick={addAlert}
-              className="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all"
+              variant="primary"
+              disabled={!newAlert.symbol || !newAlert.price}
+              className="w-full mt-4 py-3"
             >
               🔔 Crear Alerta
-            </button>
+            </Button>
           </div>
 
           {/* Lista de Alertas Activas */}
@@ -1759,15 +1726,14 @@ const StockAlertBotArgentina = () => {
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white font-bold text-lg">$</span>
-                <input
+                <FormField
                   type="number"
-                  step="1000"
-                  min="0"
                   placeholder="100000"
-                  className="w-full pl-10 pr-4 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-xl font-bold placeholder-gray-500 focus:outline-none focus:border-blue-400"
                   value={investAmount}
                   onChange={(e) => setInvestAmount(e.target.value)}
-                  autoFocus
+                  inputClassName="pl-10 pr-4 py-4 bg-white/10 border-2 border-white/30 rounded-xl text-white text-xl font-bold placeholder-gray-500 focus:outline-none focus:border-blue-400"
+                  className="m-0"
+                  step="1000"
                 />
               </div>
               <p className="text-xs text-gray-400 mt-2">💡 Ingresá sin puntos ni comas</p>
